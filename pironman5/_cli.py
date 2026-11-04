@@ -87,6 +87,7 @@ def main():
         parser.add_argument("-oe", "--oled-enable", nargs='?', default='', help="OLED enable True/true/on/On/1 or False/false/off/Off/0")
         parser.add_argument("-or", "--oled-rotation", nargs='?', default=-1, type=int, choices=[0, 180], help="Set to rotate OLED display, 0, 180")
         parser.add_argument("-op", "--oled-pages", nargs='?', default='', help=f"OLED pages, split by ',': {','.join(AVAILABLE_PAGES)}")
+        parser.add_argument("-oi", "--oled-network-interface", nargs='?', default='', help="Which network interface(s) the OLED shows: 'all' (hides virtual ones like podman/docker) or names split by ',', e.g. wlan0")
         if is_included(PERIPHERALS, "oled_sleep"):
             parser.add_argument("-os", "--oled-sleep-timeout", nargs='?', default='', help="OLED sleep timeout in seconds")
     # vibration_switch
@@ -498,6 +499,23 @@ def main():
                         quit()
                 new_sys_config['oled_pages'] = pages
                 print(f"Set OLED pages: {pages}")
+        # oled_network_interface
+        if args.oled_network_interface != '':
+            if args.oled_network_interface == None:
+                print(f"OLED network interface: {current_config['system'].get('oled_network_interface', 'all')}")
+            else:
+                iface = args.oled_network_interface.strip()
+                if iface.lower() == 'all':
+                    iface = 'all'
+                else:
+                    names = [i.strip() for i in iface.split(',') if i.strip()]
+                    missing = [n for n in names if not os.path.exists(f'/sys/class/net/{n}')]
+                    if not names or missing:
+                        print(f"Unknown network interface: {', '.join(missing) or iface}. Available: {', '.join(sorted(n for n in os.listdir('/sys/class/net') if n != 'lo'))}")
+                        quit()
+                    iface = ','.join(names)
+                new_sys_config['oled_network_interface'] = iface
+                print(f"Set OLED network interface: {iface}")
 
     # Vibration switch settings
     # ----------------------------------------
