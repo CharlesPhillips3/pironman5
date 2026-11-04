@@ -4,9 +4,9 @@
 # Supports: Pironman 5, Pironman 5 Mini, Pironman 5 Max, Pironman 5 Pro Max, Pironman 5 NAS, Pironman 5 UPS
 #
 # Usage:
-#   curl -sSL https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh | sudo bash
-#   curl -sSL https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh | sudo bash -s -- --pipower5
-#   curl -sSL https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh | sudo bash -s -- --variant base --pipower5 --container
+#   curl -sSL https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh | sudo bash
+#   curl -sSL https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh | sudo bash -s -- --pipower5
+#   curl -sSL https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh | sudo bash -s -- --variant base --pipower5 --container
 #   # China mirror (Gitee):
 #   curl -sSL https://gitee.com/sunfounder/pironman5/raw/v1/install.sh | sudo bash -s -- --cn
 #   curl -sSL https://gitee.com/sunfounder/pironman5/raw/v1/install.sh | sudo bash -s -- --cn --variant base
@@ -210,13 +210,17 @@ else
     GIT_RAW_SEP="/"
     PIPOWER5_DTBO_URL="https://github.com/sunfounder/pipower5/raw/refs/heads/main/sunfounder-pipower5.dtbo"
 fi
+# CharlesPhillips3 fork: pironman5 and pm_auto (OLED/fan/LED service) come from
+# our own GitHub so our fixes stick. Everything else still comes from SunFounder.
+OWN_REPO="https://github.com/CharlesPhillips3/"
+OWN_RAW_BASE="https://raw.githubusercontent.com/CharlesPhillips3/"
 # ============================================================
 # Package Versions
 # ============================================================
 # Fetch pironman5 version from GitHub/Gitee
 PIRONMAN5_VERSION="unknown"
 _fetch_version() {
-    local _vurl="${GIT_RAW_BASE}pironman5${GIT_RAW_SEP}${1}/pironman5/version.py"
+    local _vurl="${OWN_RAW_BASE}pironman5/${1}/pironman5/version.py"
     local _vraw
     _vraw=$(curl -fsSL "$_vurl" 2>/dev/null) || return 1
     PIRONMAN5_VERSION=$(echo "$_vraw" | awk '/__version__/ { gsub(/[^0-9.]/, ""); print }')
@@ -269,11 +273,11 @@ _fetch_comp_version() {
     local _raw=$(curl -fsSL "$_url" 2>/dev/null) || { echo "unknown"; return; }
     echo "$_raw" | awk '/__version__/ { gsub(/[^0-9.]/, ""); print }'
 }
-PM_AUTO_VER=$(_fetch_comp_version "pm_auto" "$PM_AUTO_BRANCH")
+PM_AUTO_VER=$(GIT_RAW_BASE="$OWN_RAW_BASE" GIT_RAW_SEP="/" _fetch_comp_version "pm_auto" "$PM_AUTO_BRANCH")
 DASHBOARD_VER=$(_fetch_comp_version "pm_dashboard" "$DASHBOARD_BRANCH")
 SF_RPI_STATUS_VER=$(_fetch_comp_version "sf_rpi_status" "$SF_RPI_STATUS_BRANCH")
 
-echo "  pm_auto          ${PM_AUTO_BRANCH}  (v${PM_AUTO_VER})"
+echo "  pm_auto          ${PM_AUTO_BRANCH}  (v${PM_AUTO_VER})  [CharlesPhillips3]"
 echo "  pm_dashboard     ${DASHBOARD_BRANCH}  (v${DASHBOARD_VER})"
 echo "  sf_rpi_status    ${SF_RPI_STATUS_BRANCH}  (v${SF_RPI_STATUS_VER})"
 if [ "$INSTALL_PIPOWER5" = true ]; then
@@ -458,7 +462,7 @@ RUN "DEBIAN_FRONTEND=noninteractive apt-get install -y python3-pip python3-venv 
 
 TITLE "Clone pironman5 repository"
 RUN "rm -rf ${HOME}/pironman5" "Remove existing pironman5 directory"
-RUN "git clone -b ${branch} --depth=1 ${GIT_REPO}pironman5 ${HOME}/pironman5" "Clone pironman5"
+RUN "git clone -b ${branch} --depth=1 ${OWN_REPO}pironman5 ${HOME}/pironman5" "Clone pironman5 (CharlesPhillips3)"
 if [ "$IS_CONTAINER" = false ]; then
     RUN "chown -R ${USERNAME}:${USERNAME} ${HOME}/pironman5" "Set repo ownership"
 fi
@@ -525,7 +529,7 @@ RUN "${VENV_PIP} install --upgrade ${PIP_DEPS}" "Install Python packages"
 # --- Install Python source packages ---
 TITLE "Install Python packages from source"
 RUN "${VENV_PIP} install ./ " "Install pironman5"
-RUN "${VENV_PIP} install git+${GIT_REPO}pm_auto.git@${PM_AUTO_BRANCH}" "Install pm_auto"
+RUN "${VENV_PIP} install --force-reinstall --no-deps git+${OWN_REPO}pm_auto.git@${PM_AUTO_BRANCH} && ${VENV_PIP} install git+${OWN_REPO}pm_auto.git@${PM_AUTO_BRANCH}" "Install pm_auto (CharlesPhillips3)"
 RUN "${VENV_PIP} install git+${GIT_REPO}sf_rpi_status.git@${SF_RPI_STATUS_BRANCH}" "Install sf_rpi_status"
 RUN "${VENV_PIP} install git+${GIT_REPO}pm_dashboard.git@${DASHBOARD_BRANCH}" "Install pm_dashboard"
 
