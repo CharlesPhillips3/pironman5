@@ -25,14 +25,16 @@ Quick Links:
 
 ## Installation
 
+> **CharlesPhillips3 fork.** This copy installs `pironman5` and `pm_auto` from github.com/CharlesPhillips3 so our fixes (e.g. the OLED IP page refreshing after a hotspot/network change) are kept. For a Pironman 5 MAX add `-s -- --variant max`.
+
 ```bash
-curl -sSL "https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh" | sudo bash
+curl -sSL "https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh" | sudo bash
 ```
 
 To install PiPower5 as a plugin alongside Pironman 5, append `--pipower5`:
 
 ```bash
-curl -sSL "https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh" | sudo bash -s -- --pipower5
+curl -sSL "https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh" | sudo bash -s -- --pipower5
 ```
 
 > **For users in mainland China (Gitee mirror):** append `--cn` to download the installer and all resources from Gitee instead of GitHub:
@@ -50,14 +52,14 @@ curl -sSL "https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh"
 > If your system does not support piping directly into `bash`, download the script first and then run it:
 >
 > ```bash
-> curl -sSL "https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh" -o install.sh
+> curl -sSL "https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh" -o install.sh
 > sudo bash install.sh
 > ```
 >
 > With PiPower5 plugin:
 >
 > ```bash
-> curl -sSL "https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh" -o install.sh
+> curl -sSL "https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh" -o install.sh
 > sudo bash install.sh --pipower5
 > ```
 
@@ -91,7 +93,7 @@ It checks and repairs the problems that are usually left behind by upgrading an 
 Re-running the installer performs the same repair:
 
 ```bash
-curl -sSL "https://raw.githubusercontent.com/sunfounder/pironman5/v1/install.sh" | sudo bash
+curl -sSL "https://raw.githubusercontent.com/CharlesPhillips3/pironman5/v1/install.sh" | sudo bash
 ```
 
 Upgrading an old 1.2.x installation also leaves its history behind: 1.2.x stored it in the InfluxDB database `pironman5`, while this version uses one database per product (`pironman5-max`, `pironman5-mini`, ...). Copy it over with:
